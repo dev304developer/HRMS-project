@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Http\Requests;
+
+use App\Models\Leave;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class StoreLeaveRequest extends FormRequest
+{
+    /**
+     * Delegate to the LeavePolicy: only users who can "create" a leave
+     * (i.e. have an employee profile) may submit this form.
+     */
+    public function authorize(): bool
+    {
+        return $this->user()->can('create', Leave::class);
+    }
+
+    /**
+     * For a single-day request the "Apply for multiple days" box is unchecked,
+     * so we only get one date — copy it into end_date so the rules below work
+     * unchanged for both single- and multi-day requests.
+     */
+    protected function prepareForValidation(): void
+    {
+        if (! $this->boolean('multiple_days')) {
+            $this->merge(['end_date' => $this->input('start_date')]);
+        }
+    }
+
+    /**
+     * Note: employee_id and status are intentionally NOT validated here —
+     * they are set server-side in the controller, never trusted from input.
+     *
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        return [
+            'leave_type' => ['required', Rule::in(array_keys(Leave::TYPES))],
+            'session' => ['required', Rule::in(array_keys(Leave::SESSIONS))],
+            'start_date' => ['required', 'date', 'after_or_equal:today'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'reason' => ['required', 'string', 'max:500'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'start_date.after_or_equal' => 'The leave start date cannot be in the past.',
+            'end_date.after_or_equal' => 'The end date must be the same as or after the start date.',
+        ];
+    }
+}

@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Http\Requests;
+
+use App\Models\Employee;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class StoreEmployeeRequest extends FormRequest
+{
+    /**
+     * Authorization is handled by the route middleware (role:admin,hr),
+     * so we just allow the request to proceed to validation here.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Validation rules for creating an employee.
+     *
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        return [
+            // Must point to a real user that doesn't already have a profile.
+            'user_id' => ['required', 'integer', 'exists:users,id', 'unique:employees,user_id'],
+            'employee_code' => ['required', 'string', 'max:50', 'unique:employees,employee_code'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'designation' => ['required', 'string', 'max:100'],
+            'department' => ['required', 'string', 'max:100'],
+            'salary' => ['nullable', 'numeric', 'min:0'],
+            'hire_date' => ['required', 'date'],
+            'date_of_birth' => ['nullable', 'date', 'before:today'],
+            'status' => ['required', Rule::in(Employee::STATUSES)],
+        ];
+    }
+}

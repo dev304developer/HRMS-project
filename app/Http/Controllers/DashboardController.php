@@ -15,7 +15,7 @@ class DashboardController extends Controller
     {
         $stats = [
             'employees' => Employee::count(),
-            'pendingLeaves' => Leave::where('status', Leave::STATUS_PENDING)->count(),
+            'pendingLeaves' => Leave::where('status', Leave::STATUS_PENDING)->upcoming()->count(),
             'approvedLeaves' => Leave::where('status', Leave::STATUS_APPROVED)->count(),
             // Number of distinct (non-empty) departments across all employees.
             'departments' => Employee::query()->distinct()->count('department'),

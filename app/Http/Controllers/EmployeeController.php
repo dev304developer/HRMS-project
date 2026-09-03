@@ -30,7 +30,7 @@ class EmployeeController extends Controller
     {
         $users = User::doesntHave('employee')->orderBy('name')->get();
 
-        return view('employees.create', compact('users'));
+        return view('employees.create', ['users' => $users, 'managers' => $this->managerOptions()]);
     }
 
     /**
@@ -66,7 +66,7 @@ class EmployeeController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('employees.edit', compact('employee', 'users'));
+        return view('employees.edit', ['employee' => $employee, 'users' => $users, 'managers' => $this->managerOptions()]);
     }
 
     /**
@@ -89,5 +89,23 @@ class EmployeeController extends Controller
 
         return redirect()->route('employees.index')
             ->with('success', 'Employee deleted successfully.');
+    }
+
+    /**
+     * Accounts that can be picked as a line manager, as id => name (role).
+     *
+     * @return array<int, string>
+     */
+    private function managerOptions(): array
+    {
+        return \App\Models\User::whereIn('role', [
+                \App\Models\User::ROLE_MANAGER,
+                \App\Models\User::ROLE_HR,
+                \App\Models\User::ROLE_ADMIN,
+            ])
+            ->orderBy('name')
+            ->get()
+            ->mapWithKeys(fn ($u) => [$u->id => $u->name . ' (' . $u->role . ')'])
+            ->all();
     }
 }

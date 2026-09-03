@@ -32,6 +32,7 @@ class StoreEmployeeRequest extends FormRequest
             'address' => ['nullable', 'string', 'max:500'],
             'designation' => ['required', 'string', 'max:100'],
             'department' => ['required', 'string', 'max:100'],
+            'manager_id' => ['nullable', 'integer', 'exists:users,id'],
             'salary' => ['nullable', 'numeric', 'min:0'],
             'hire_date' => ['required', 'date'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],

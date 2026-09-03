@@ -1,169 +1,117 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'HRMS') }} — Dashboard</title>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('HRMS Overview') }}</h2>
+    </x-slot>
 
-    {{-- Bootstrap 5 + icons via CDN (kept separate from the app's Tailwind build) --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f5f6fa; }
-        .stat-card { border: none; border-radius: .75rem; transition: transform .15s ease; }
-        .stat-card:hover { transform: translateY(-3px); }
-        .stat-icon { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: .75rem; font-size: 1.5rem; }
-    </style>
-</head>
-<body>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-    {{-- Top navbar --}}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand fw-bold" href="{{ route('hrms.dashboard') }}">
-                <i class="bi bi-buildings me-1"></i>{{ config('app.name', 'HRMS') }}
-            </a>
-            <div class="d-flex align-items-center gap-3">
-                <a href="{{ route('employees.index') }}" class="text-light text-decoration-none small">
-                    <i class="bi bi-people me-1"></i>Employees
-                </a>
-                <a href="{{ route('dashboard') }}" class="text-light text-decoration-none small">
-                    <i class="bi bi-grid me-1"></i>App Dashboard
-                </a>
-                <span class="text-secondary small">|</span>
-                <span class="text-light small">{{ Auth::user()->name }}</span>
-                <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-light">Log out</button>
-                </form>
-            </div>
-        </div>
-    </nav>
+            {{-- Summary stat cards --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
-    <div class="container-fluid px-4 py-4">
-
-        <h4 class="mb-4 fw-semibold text-dark">HRMS Overview</h4>
-
-        {{-- Stat cards --}}
-        <div class="row g-4 mb-4">
-
-            {{-- Employees --}}
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="card stat-card shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="stat-icon bg-primary-subtle text-primary me-3"><i class="bi bi-people-fill"></i></div>
-                        <div>
-                            <div class="text-muted small text-uppercase">Employees</div>
-                            <div class="fs-3 fw-bold">{{ $stats['employees'] }}</div>
-                        </div>
+                <div class="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900">{{ $stats['employees'] }}</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Employees</div>
                     </div>
+                    <span class="h-10 w-10 rounded-lg flex items-center justify-center" style="background-color: #eaf5fe; color: #2f80ed;">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    </span>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900">{{ $stats['pendingLeaves'] }}</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Pending Leaves</div>
+                    </div>
+                    <span class="h-10 w-10 rounded-lg flex items-center justify-center bg-yellow-100 text-yellow-800">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900">{{ $stats['approvedLeaves'] }}</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Approved Leaves</div>
+                    </div>
+                    <span class="h-10 w-10 rounded-lg flex items-center justify-center bg-green-100 text-green-800">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900">{{ $stats['departments'] }}</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Departments</div>
+                    </div>
+                    <span class="h-10 w-10 rounded-lg flex items-center justify-center bg-blue-100 text-blue-700">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    </span>
                 </div>
             </div>
 
-            {{-- Pending Leaves --}}
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="card stat-card shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="stat-icon bg-warning-subtle text-warning me-3"><i class="bi bi-hourglass-split"></i></div>
-                        <div>
-                            <div class="text-muted small text-uppercase">Pending Leaves</div>
-                            <div class="fs-3 fw-bold">{{ $stats['pendingLeaves'] }}</div>
-                        </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                {{-- Headcount by department, with a bar showing relative size --}}
+                @php($maxDept = max(1, (int) $departmentBreakdown->max('total')))
+                <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm">
+                    <div class="px-6 py-4 border-b">
+                        <h3 class="font-semibold text-gray-800">Headcount by Department</h3>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        @forelse ($departmentBreakdown as $row)
+                            <div>
+                                <div class="flex items-center justify-between gap-3 text-sm">
+                                    <span class="text-gray-700 truncate">{{ $row->department ?: '—' }}</span>
+                                    <span class="font-semibold text-gray-900">{{ $row->total }}</span>
+                                </div>
+                                <div class="mt-2 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                                    <div class="h-full rounded-full"
+                                         style="width: {{ round($row->total / $maxDept * 100) }}%; background-color: #2f80ed;"></div>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-sm text-gray-500">No departments yet.</p>
+                        @endforelse
                     </div>
                 </div>
-            </div>
 
-            {{-- Approved Leaves --}}
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="card stat-card shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="stat-icon bg-success-subtle text-success me-3"><i class="bi bi-check2-circle"></i></div>
-                        <div>
-                            <div class="text-muted small text-uppercase">Approved Leaves</div>
-                            <div class="fs-3 fw-bold">{{ $stats['approvedLeaves'] }}</div>
-                        </div>
+                {{-- Recent leave requests --}}
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm">
+                    <div class="px-6 py-4 border-b flex items-center justify-between">
+                        <h3 class="font-semibold text-gray-800">Recent Leave Requests</h3>
+                        <a href="{{ route('leaves.manage') }}" class="text-sm font-medium hover:underline" style="color: #2f80ed;">View all</a>
                     </div>
-                </div>
-            </div>
-
-            {{-- Departments --}}
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="card stat-card shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="stat-icon bg-info-subtle text-info me-3"><i class="bi bi-diagram-3-fill"></i></div>
-                        <div>
-                            <div class="text-muted small text-uppercase">Departments</div>
-                            <div class="fs-3 fw-bold">{{ $stats['departments'] }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="row g-4">
-
-            {{-- Department breakdown --}}
-            <div class="col-12 col-lg-5">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header bg-white fw-semibold"><i class="bi bi-diagram-3 me-1"></i>Headcount by Department</div>
-                    <div class="card-body p-0">
-                        <table class="table table-hover mb-0 align-middle">
-                            <thead class="table-light">
-                                <tr><th>Department</th><th class="text-end">Employees</th></tr>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3">Employee</th>
+                                    <th class="px-6 py-3">Type</th>
+                                    <th class="px-6 py-3">Dates</th>
+                                    <th class="px-6 py-3">Status</th>
+                                </tr>
                             </thead>
-                            <tbody>
-                                @forelse ($departmentBreakdown as $row)
-                                    <tr>
-                                        <td>{{ $row->department }}</td>
-                                        <td class="text-end"><span class="badge bg-secondary">{{ $row->total }}</span></td>
-                                    </tr>
-                                @empty
-                                    <tr><td colspan="2" class="text-center text-muted py-4">No departments yet.</td></tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Recent leaves --}}
-            <div class="col-12 col-lg-7">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header bg-white fw-semibold"><i class="bi bi-calendar-event me-1"></i>Recent Leave Requests</div>
-                    <div class="card-body p-0">
-                        <table class="table table-hover mb-0 align-middle">
-                            <thead class="table-light">
-                                <tr><th>Employee</th><th>Type</th><th>Dates</th><th>Status</th></tr>
-                            </thead>
-                            <tbody>
+                            <tbody class="divide-y divide-gray-200 text-sm text-gray-700">
                                 @forelse ($recentLeaves as $leave)
-                                    <tr>
-                                        <td>{{ $leave->employee->user->name ?? '—' }}</td>
-                                        <td>{{ $leave->typeLabel() }}</td>
-                                        <td class="small text-muted">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-medium text-gray-900">{{ $leave->employee->user->name ?? '—' }}</td>
+                                        <td class="px-6 py-4">{{ $leave->typeLabel() }}</td>
+                                        <td class="px-6 py-4 text-gray-500 whitespace-nowrap">
                                             {{ $leave->start_date->format('d M') }} – {{ $leave->end_date->format('d M Y') }}
                                         </td>
-                                        <td>
-                                            @php($map = ['pending' => 'warning', 'approved' => 'success', 'rejected' => 'danger'])
-                                            <span class="badge bg-{{ $map[$leave->status] ?? 'secondary' }}-subtle text-{{ $map[$leave->status] ?? 'secondary' }} text-capitalize">
-                                                {{ $leave->status }}
-                                            </span>
-                                        </td>
+                                        <td class="px-6 py-4"><x-leave-status-badge :status="$leave->status" /></td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="4" class="text-center text-muted py-4">No leave requests yet.</td></tr>
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">No leave requests yet.</td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-
         </div>
-
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</x-app-layout>

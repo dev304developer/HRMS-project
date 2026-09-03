@@ -127,6 +127,92 @@
         </div>
     </div>
 
+    {{-- Action Center | Briefing. The partial is shared, so the panels take
+         the viewer's own role: "Admin ..." for admins, "HR ..." for HR. --}}
+    @php($panelRole = Auth::user()->isAdmin() ? 'Admin' : 'HR')
+    @php($showHealth = Auth::user()->isAdmin())
+    <div class="grid grid-cols-1 lg:grid-cols-2 {{ $showHealth ? 'xl:grid-cols-3' : '' }} gap-6">
+
+        {{-- Action Center: counters HR can act on, each linking to where they act --}}
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="h-8 w-8 rounded-lg flex items-center justify-center bg-red-100 text-red-700">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </span>
+                <h3 class="font-semibold text-gray-800">{{ $panelRole }} Action Center</h3>
+            </div>
+
+            <div class="space-y-1">
+                @foreach ($dash['hrActions'] as $action)
+                    @php($done = $action['count'] === 0)
+                    <a href="{{ $action['url'] }}"
+                       class="flex items-center gap-3 rounded-xl px-2 py-2.5 -mx-2 hover:bg-gray-50">
+                        <span class="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center text-sm font-bold
+                            {{ $done ? 'bg-gray-100 text-gray-400' : ($action['tone'] === 'amber' ? 'bg-yellow-100 text-yellow-800' : ($action['tone'] === 'blue' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700')) }}">
+                            {{ $action['count'] }}
+                        </span>
+                        <span class="min-w-0 flex-1 text-sm {{ $done ? 'text-gray-400' : 'font-medium text-gray-900' }} truncate">
+                            {{ $action['label'] }}
+                        </span>
+                        @unless ($done)
+                            <svg class="h-4 w-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        @endunless
+                    </a>
+                @endforeach
+            </div>
+
+            @if (collect($dash['hrActions'])->sum('count') === 0)
+                <p class="mt-3 pt-3 border-t text-xs text-gray-500">Nothing needs your attention right now.</p>
+            @endif
+        </div>
+
+        {{-- Briefing: auto-written summary lines --}}
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="h-8 w-8 rounded-lg flex items-center justify-center bg-blue-100 text-blue-700">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m0 0h2a2 2 0 012 2v9a2 2 0 01-2 2h-2m0-13v13M9 8h4m-4 4h4m-4 4h2"/></svg>
+                </span>
+                <h3 class="font-semibold text-gray-800">{{ $panelRole }} Briefing</h3>
+                <span class="ml-auto text-xs text-gray-400">{{ now()->format('d M Y') }}</span>
+            </div>
+
+            <ul class="space-y-2.5">
+                @foreach ($dash['hrBriefing'] as $line)
+                    <li class="flex items-start gap-2.5 text-sm text-gray-700">
+                        <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style="background-color:#2f80ed;"></span>
+                        <span>{{ $line }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+
+        {{-- System Health (admins only): local infrastructure checks --}}
+        @if ($showHealth)
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="h-8 w-8 rounded-lg flex items-center justify-center bg-green-100 text-green-800">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </span>
+                    <h3 class="font-semibold text-gray-800">System Health</h3>
+                </div>
+
+                <div class="space-y-1">
+                    @foreach ($dash['systemHealth'] as $check)
+                        @php($dot = $check['status'] === 'ok' ? '#22c55e' : ($check['status'] === 'warn' ? '#f59e0b' : '#ef4444'))
+                        <div class="flex items-center gap-3 rounded-xl px-2 py-2 -mx-2">
+                            <span class="h-2 w-2 shrink-0 rounded-full" style="background-color: {{ $dot }};"></span>
+                            <span class="min-w-0 flex-1 text-sm text-gray-700 truncate">{{ $check['label'] }}</span>
+                            <span class="shrink-0 text-xs {{ $check['status'] === 'ok' ? 'text-gray-500' : 'font-semibold' }}"
+                                  @if ($check['status'] !== 'ok') style="color: {{ $dot }};" @endif>
+                                {{ $check['detail'] }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+    </div>
+
     {{-- Bottom area: Employee Status | Announcements | Upcoming Holidays --}}
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 

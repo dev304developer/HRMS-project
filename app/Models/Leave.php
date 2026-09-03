@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,6 +49,16 @@ class Leave extends Model
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
+    }
+
+    /**
+     * Limit to requests whose leave period has not finished yet, i.e. those
+     * still worth acting on. A leave running today still counts; one whose
+     * dates have fully passed does not.
+     */
+    public function scopeUpcoming(Builder $query): Builder
+    {
+        return $query->whereDate('end_date', '>=', today());
     }
 
     /**

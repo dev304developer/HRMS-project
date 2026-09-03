@@ -58,11 +58,7 @@ class AttendanceController extends Controller
             return 0;
         }
 
-        return (int) $employee->attendances()
-            ->whereNotNull('clock_out')
-            ->whereBetween('date', [$from->toDateString(), $to->toDateString()])
-            ->selectRaw('COALESCE(SUM(GREATEST(TIMESTAMPDIFF(MINUTE, clock_in, clock_out) - break_minutes, 0)), 0) as minutes')
-            ->value('minutes');
+        return $employee->productiveMinutesBetween($from, $to);
     }
 
     /**

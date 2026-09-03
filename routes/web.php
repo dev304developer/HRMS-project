@@ -5,6 +5,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeProfileController;
+use App\Http\Controllers\GoalController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HrController;
@@ -98,6 +99,10 @@ Route::middleware(['auth', 'role:admin,hr'])->group(function () {
 
     // Meeting schedules — HR/admin manage; shown on the dashboard "Schedules" card.
     Route::resource('schedules', ScheduleController::class)->except(['show']);
+
+    // Employee performance goals — HR/admin assign them; employees see
+    // their own on the dashboard.
+    Route::resource('goals', GoalController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';

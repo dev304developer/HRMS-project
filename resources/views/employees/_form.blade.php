@@ -60,6 +60,17 @@
         <x-input-error :messages="$errors->get('department')" class="mt-2" />
     </div>
 
+    <div>
+        <x-input-label for="manager_id" :value="__('Reports To')" />
+        <select id="manager_id" name="manager_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            <option value="">- No line manager -</option>
+            @foreach ($managers as $id => $label)
+                <option value="{{ $id }}" @selected(old('manager_id', $employee?->manager_id) == $id)>{{ $label }}</option>
+            @endforeach
+        </select>
+        <x-input-error :messages="$errors->get('manager_id')" class="mt-2" />
+    </div>
+
     {{-- Phone --}}
     <div>
         <x-input-label for="phone" :value="__('Phone')" />

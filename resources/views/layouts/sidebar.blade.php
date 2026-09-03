@@ -75,6 +75,11 @@
                         HRMS Stats
                     </x-sidebar-link>
 
+                    <x-sidebar-link :href="route('goals.index')" :active="request()->routeIs('goals.*')">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8a4 4 0 100 8 4 4 0 000-8zm0-5a9 9 0 100 18 9 9 0 000-18zm0 8a1 1 0 100 2 1 1 0 000-2z"/></svg>
+                        Goals
+                    </x-sidebar-link>
+
                     <x-sidebar-link :href="route('schedules.index')" :active="request()->routeIs('schedules.*')">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         Schedules

@@ -32,6 +32,7 @@ class Employee extends Model
         'address',
         'designation',
         'department',
+        'manager_id',
         'salary',
         'carry_forward',
         'hire_date',
@@ -65,6 +66,39 @@ class Employee extends Model
     /**
      * All leave requests submitted by this employee.
      */
+    /**
+     * The user this employee reports to (a manager/HR/admin account).
+     */
+    public function manager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    /**
+     * Total productive minutes across completed sessions in a date range.
+     *
+     * Summed in PHP through Attendance::$productive_minutes rather than in
+     * SQL. The previous raw query used MySQL-only GREATEST()/TIMESTAMPDIFF(),
+     * which broke on any other database, and duplicated a formula the
+     * Attendance model already owns.
+     */
+    public function productiveMinutesBetween(\Carbon\Carbon $from, \Carbon\Carbon $to): int
+    {
+        return (int) $this->attendances()
+            ->whereNotNull('clock_out')
+            ->whereBetween('date', [$from->toDateString(), $to->toDateString()])
+            ->get()
+            ->sum(fn (Attendance $a) => $a->productive_minutes ?? 0);
+    }
+
+    /**
+     * Performance goals assigned to this employee.
+     */
+    public function goals(): HasMany
+    {
+        return $this->hasMany(Goal::class);
+    }
+
     public function leaves(): HasMany
     {
         return $this->hasMany(Leave::class);
